@@ -2,8 +2,8 @@ import re
 import json
 
 
-CAT_MALE = ("кот", "кота", "коту")
-CAT_FEMALE = ("кошка", "кошку", "кошке")
+CAT_MALE = ("кот", "кота", "коту", "котик", "котику", "котика")
+CAT_FEMALE = ("кошка", "кошку", "кошке", "кошечка", "кошечку", "кошечке")
 AGE_KEYS = ("лет", "год", "года")
 
 
@@ -17,7 +17,7 @@ def parse_text(in_text):
     in_text_lower = in_text.lower()
     cat_male_loc = re.search("("+")|(".join(CAT_MALE)+")", in_text_lower)
     cat_female_loc = re.search("("+")|(".join(CAT_FEMALE)+")", in_text_lower)
-    age_loc = re.search("\d+"+"("+")|(".join(AGE_KEYS)+")", in_text_lower)
+    age_loc = re.search("\d+\.?\d+"+"\W*("+")|(".join(AGE_KEYS)+")", in_text_lower.replace(",", "."))
     
     if cat_male_loc is not None:
         result["cat"] = True
@@ -28,9 +28,9 @@ def parse_text(in_text):
         return result
       
     if age_loc is not None:
-        age_str = in_text_lower[age_loc.start: age_loc.end]
-        years_loc = re.search("\d+", age_str)
-        result["age"] = age_str[years_loc.start: years_loc.end]
+        age_str = in_text_lower[age_loc.start(): age_loc.end()].replace(",", ".")
+        years_loc = re.search("\d+\.?\d+", age_str)
+        result["age"] = float(age_str[years_loc.start(): years_loc.end()])
         
     return result
 
